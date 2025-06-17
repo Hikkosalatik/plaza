@@ -13,9 +13,18 @@ _G.Config = {
 }
 
 -- Проверка, указан ли предмет в конфиге (ТОЛЬКО ТОЧНОЕ ИМЯ)
-local function IsInConfig(name)
-    return _G.Config[name] ~= nil
+local function IsInConfig(name, className)
+    local config = _G.Config[name]
+    if not config then return false end
+
+    -- Если название содержит "Huge", то проверяем только у Pet
+    if string.find(name, "Huge") and className ~= "Pet" then
+        return false
+    end
+
+    return true
 end
+
 
 -- Применение модификатора RAP
 local function ModifyRAP(name, baseRAP)
@@ -60,9 +69,10 @@ end
 -- Перебор ТОЛЬКО предметов, указанных в конфиге
 for className, itemList in pairs(Save.Get().Inventory) do
     for _, itemData in pairs(itemList) do
-        if IsInConfig(itemData.id) then
+        if IsInConfig(itemData.id, className) then
             local rap = GetItemRAP(className, itemData)
             print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
         end
     end
 end
+
