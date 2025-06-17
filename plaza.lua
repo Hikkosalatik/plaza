@@ -5,7 +5,7 @@ local RAPCmds = require(Client.RAPCmds)
 local Network = require(Client.Network)
 local Save = require(Client.Save)
 
--- Пример конфигурации
+-- Конфиг
 _G.Config = {
     ["All Huges"] = {Price = "+20%"},
     ["Tower Defense Gift"] = {Price = "-5%", Amount = 5},
@@ -13,15 +13,24 @@ _G.Config = {
     ["Golden Huge Spring Griffin"] = {Price = "-5"},
 }
 
--- Проверка, подходит ли предмет под конфиг
-local function IsInConfig(name)
-    return _G.Config[name] or (string.find(name, "Huge") and _G.Config["All Huges"])
+-- Проверка, есть ли предмет в конфиге
+local function IsInConfig(name, className)
+    if _G.Config[name] then
+        return true
+    end
+
+    -- All Huges применяется только к питомцам
+    if className == "Pet" and string.find(name, "Huge") and _G.Config["All Huges"] then
+        return true
+    end
+
+    return false
 end
 
 -- Применение модификатора RAP
-local function ModifyRAP(name, baseRAP)
+local function ModifyRAP(name, baseRAP, className)
     local config = _G.Config[name]
-    if not config and string.find(name, "Huge") then
+    if not config and className == "Pet" and string.find(name, "Huge") then
         config = _G.Config["All Huges"]
     end
     if not config then return baseRAP end
@@ -42,7 +51,18 @@ end
 
 -- Получение RAP
 local function GetItemRAP(Class, ItemData)
-    local ItemModule = require(Library.Items[Class .. "Item"])
+    local itemModulePath = Library.Items:FindFirstChild(Class .. "Item")
+    if not itemModulePath then
+        warn("Item module not found for class:", Class)
+        return 0
+    end
+
+    local ItemModule = require(itemModulePath)
+    if type(ItemModule) ~= "function" then
+        warn("Invalid ItemModule (not a function) for:", Class)
+        return 0
+    end
+
     local Item = ItemModule(ItemData.id)
 
     if ItemData.sh then
@@ -58,13 +78,13 @@ local function GetItemRAP(Class, ItemData)
     end
 
     local baseRAP = RAPCmds.Get(Item) or 0
-    return ModifyRAP(ItemData.id, baseRAP)
+    return ModifyRAP(ItemData.id, baseRAP, Class)
 end
 
--- Перебор только предметов, указанных в конфиге
+-- Перебор инвентаря
 for className, itemList in pairs(Save.Get().Inventory) do
     for _, itemData in pairs(itemList) do
-        if IsInConfig(itemData.id) then
+        if IsInConfig(itemData.id, className) then
             local rap = GetItemRAP(className, itemData)
             print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
         end
