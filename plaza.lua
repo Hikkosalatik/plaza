@@ -5,24 +5,21 @@ local RAPCmds = require(Client.RAPCmds)
 local Network = require(Client.Network)
 local Save = require(Client.Save)
 
--- Пример конфигурации
+-- Пример конфигурации (только точные названия!)
 _G.Config = {
     ["Tower Defense Gift"] = {Price = "-5%", Amount = 5},
     ["Huge Spring Griffin"] = {Price = "+20%"},
     ["Golden Huge Spring Griffin"] = {Price = "-5"},
 }
 
--- Проверка, подходит ли предмет под конфиг
+-- Проверка, указан ли предмет в конфиге (ТОЛЬКО ТОЧНОЕ ИМЯ)
 local function IsInConfig(name)
-    return _G.Config[name] or (string.find(name, "Huge") and _G.Config["All Huges"])
+    return _G.Config[name] ~= nil
 end
 
 -- Применение модификатора RAP
 local function ModifyRAP(name, baseRAP)
     local config = _G.Config[name]
-    if not config and string.find(name, "Huge") then
-        config = _G.Config["All Huges"]
-    end
     if not config then return baseRAP end
 
     local priceStr = config.Price
@@ -60,7 +57,7 @@ local function GetItemRAP(Class, ItemData)
     return ModifyRAP(ItemData.id, baseRAP)
 end
 
--- Перебор только предметов, указанных в конфиге
+-- Перебор ТОЛЬКО предметов, указанных в конфиге
 for className, itemList in pairs(Save.Get().Inventory) do
     for _, itemData in pairs(itemList) do
         if IsInConfig(itemData.id) then
