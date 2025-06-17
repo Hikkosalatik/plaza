@@ -7,9 +7,8 @@ local Save = require(Client.Save)
 
 -- Пример конфигурации (только точные названия!)
 _G.Config = {
-    ["Tower Defense Gift"] = {Class = "Tower", Price = "-5%", Amount = 5},
+    ["Tower Defense Gift"] = {Class = "Lootbox", Price = "-5%", Amount = 5},
     ["Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
-    ["Golden Huge Spring Griffin"] = {Class = "Pet", Price = "-5"},
 }
 
 -- Быстрый доступ к нужным предметам из конфига по классам
