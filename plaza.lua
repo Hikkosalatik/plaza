@@ -1,86 +1,67 @@
-local Library = game.ReplicatedStorage.Library
-local Client = Library.Client
+local Library = game.ReplicatedStorage:WaitForChild("Library")
+local Client = Library:WaitForChild("Client")
 
-local RAPCmds = require(Client.RAPCmds)
-local Network = require(Client.Network)
-local Save = require(Client.Save)
+local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 
--- Пример конфигурации (только точные названия!)
+-- Конфигурация
 _G.Config = {
     ["Tower Defense Gift"] = {Class = "Lootbox", Price = "-5%", Amount = 5},
     ["Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
 }
 
--- Быстрый доступ к нужным предметам из конфига по классам
-local ClassLookup = {}
-for name, cfg in pairs(_G.Config) do
-    local class = cfg.Class
-    if not ClassLookup[class] then
-        ClassLookup[class] = {}
-    end
-    ClassLookup[class][name] = cfg
-end
+-- Применение модификатора цены
+local function ApplyPriceModifier(baseRAP, config)
+    if not config or not config.Price then return baseRAP end
 
--- Применяем модификатор
-local function ModifyRAP(cfg, baseRAP)
-    local priceStr = cfg.Price
-    if string.find(priceStr, "%%") then
-        local sign, percent = string.match(priceStr, "([%+%-])(%d+)%%")
-        percent = tonumber(percent)
-        if sign == "+" then
-            return math.floor(baseRAP * (1 + percent / 100))
-        else
-            return math.floor(baseRAP * (1 - percent / 100))
-        end
+    local priceStr = config.Price
+    local sign, value, isPercent = priceStr:match("([%+%-])(%d+)(%%?)")
+    value = tonumber(value)
+
+    if isPercent == "%" then
+        local factor = (sign == "+" and 1 + value / 100) or (1 - value / 100)
+        return math.floor(baseRAP * factor)
     else
-        return baseRAP + tonumber(priceStr)
+        return baseRAP + (sign == "-" and -value or value)
     end
 end
 
--- Получаем объект Item
-local function GetItem(className, itemData)
-    local moduleScript = Library.Items:FindFirstChild(className .. "Item")
-    if not moduleScript then return nil end
+-- Получение RAP предмета с учётом конфига
+local function GetItemRAP(Class, ItemData)
+    local ItemModule = require(Library.Items[Class .. "Item"])
+    local Item = ItemModule(ItemData.id)
 
-    local Module = require(moduleScript)
-    local item
+    -- Устанавливаем состояния предмета
+    if ItemData.sh then Item:SetShiny(true) end
+    if ItemData.pt == 1 then
+        Item:SetGolden()
+    elseif ItemData.pt == 2 then
+        Item:SetRainbow()
+    end
+    if ItemData.tn then Item:SetTier(ItemData.tn) end
 
-    if typeof(Module) == "function" then
-        item = Module(itemData.id)
-    elseif typeof(Module) == "table" then
-        if typeof(Module.Get) == "function" then
-            item = Module.Get(itemData.id)
-        elseif typeof(Module.new) == "function" then
-            item = Module.new(itemData.id)
-        else
-            return nil
-        end
-    else
-        return nil
+    -- Получаем базовый RAP
+    local baseRAP = RAPCmds.Get(Item) or 0
+
+    -- Проверка и применение конфига
+    local config = _G.Config[ItemData.id]
+    if config and config.Class == Class then
+        return ApplyPriceModifier(baseRAP, config)
     end
 
-    if itemData.sh then item:SetShiny(true) end
-    if itemData.pt == 1 then item:SetGolden()
-    elseif itemData.pt == 2 then item:SetRainbow() end
-    if itemData.tn then item:SetTier(itemData.tn) end
-
-    return item
+    return baseRAP
 end
 
--- Основной проход по инвентарю
-for className, itemList in pairs(Save.Get().Inventory) do
-    local classConfig = ClassLookup[className]
-    if classConfig then
-        for _, itemData in pairs(itemList) do
-            local cfg = classConfig[itemData.id]
-            if cfg then
-                local item = GetItem(className, itemData)
-                if item then
-                    local baseRAP = RAPCmds.Get(item) or 0
-                    local finalRAP = ModifyRAP(cfg, baseRAP)
-                    print(string.format("[%s] %s: %d RAP (base %d)", className, itemData.id, finalRAP, baseRAP))
-                end
-            end
-        end
-    end
+-- Пример
+local exampleItem = {
+    id = "Tower Defense Gift",
+    sh = false,
+    pt = 0,
+    tn = false
+}
+for i,v in _G.Config do 
+    exampleItem[id] == i
+
+    local rap = GetItemRAP(v.Class, exampleItem)
+    print(rap)
 end
+
