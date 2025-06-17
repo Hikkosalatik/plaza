@@ -7,31 +7,24 @@ local Save = require(Client.Save)
 
 -- Пример конфигурации (только точные названия!)
 _G.Config = {
-    ["Tower Defense Gift"] = {Price = "-5%", Amount = 5},
-    ["Huge Spring Griffin"] = {Price = "+20%"},
-    ["Golden Huge Spring Griffin"] = {Price = "-5"},
+    ["Tower Defense Gift"] = {Class = "Tower", Price = "-5%", Amount = 5},
+    ["Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
+    ["Golden Huge Spring Griffin"] = {Class = "Pet", Price = "-5"},
 }
 
--- Проверка, указан ли предмет в конфиге (ТОЛЬКО ТОЧНОЕ ИМЯ)
-local function IsInConfig(name, className)
-    local config = _G.Config[name]
-    if not config then return false end
-
-    -- Если название содержит "Huge", то проверяем только у Pet
-    if string.find(name, "Huge") and className ~= "Pet" then
-        return false
+-- Быстрый доступ к нужным предметам из конфига по классам
+local ClassLookup = {}
+for name, cfg in pairs(_G.Config) do
+    local class = cfg.Class
+    if not ClassLookup[class] then
+        ClassLookup[class] = {}
     end
-
-    return true
+    ClassLookup[class][name] = cfg
 end
 
-
--- Применение модификатора RAP
-local function ModifyRAP(name, baseRAP)
-    local config = _G.Config[name]
-    if not config then return baseRAP end
-
-    local priceStr = config.Price
+-- Применяем модификатор
+local function ModifyRAP(cfg, baseRAP)
+    local priceStr = cfg.Price
     if string.find(priceStr, "%%") then
         local sign, percent = string.match(priceStr, "([%+%-])(%d+)%%")
         percent = tonumber(percent)
@@ -45,34 +38,50 @@ local function ModifyRAP(name, baseRAP)
     end
 end
 
--- Получение RAP
-local function GetItemRAP(Class, ItemData)
-    local ItemModule = require(Library.Items[Class .. "Item"])
-    local Item = ItemModule(ItemData.id)
+-- Получаем объект Item
+local function GetItem(className, itemData)
+    local moduleScript = Library.Items:FindFirstChild(className .. "Item")
+    if not moduleScript then return nil end
 
-    if ItemData.sh then
-        Item:SetShiny(true)
-    end
-    if ItemData.pt == 1 then
-        Item:SetGolden()
-    elseif ItemData.pt == 2 then
-        Item:SetRainbow()
-    end
-    if ItemData.tn then
-        Item:SetTier(ItemData.tn)
+    local Module = require(moduleScript)
+    local item
+
+    if typeof(Module) == "function" then
+        item = Module(itemData.id)
+    elseif typeof(Module) == "table" then
+        if typeof(Module.Get) == "function" then
+            item = Module.Get(itemData.id)
+        elseif typeof(Module.new) == "function" then
+            item = Module.new(itemData.id)
+        else
+            return nil
+        end
+    else
+        return nil
     end
 
-    local baseRAP = RAPCmds.Get(Item) or 0
-    return ModifyRAP(ItemData.id, baseRAP)
+    if itemData.sh then item:SetShiny(true) end
+    if itemData.pt == 1 then item:SetGolden()
+    elseif itemData.pt == 2 then item:SetRainbow() end
+    if itemData.tn then item:SetTier(itemData.tn) end
+
+    return item
 end
 
--- Перебор ТОЛЬКО предметов, указанных в конфиге
+-- Основной проход по инвентарю
 for className, itemList in pairs(Save.Get().Inventory) do
-    for _, itemData in pairs(itemList) do
-        if IsInConfig(itemData.id, className) then
-            local rap = GetItemRAP(className, itemData)
-            print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
+    local classConfig = ClassLookup[className]
+    if classConfig then
+        for _, itemData in pairs(itemList) do
+            local cfg = classConfig[itemData.id]
+            if cfg then
+                local item = GetItem(className, itemData)
+                if item then
+                    local baseRAP = RAPCmds.Get(item) or 0
+                    local finalRAP = ModifyRAP(cfg, baseRAP)
+                    print(string.format("[%s] %s: %d RAP (base %d)", className, itemData.id, finalRAP, baseRAP))
+                end
+            end
         end
     end
 end
-
