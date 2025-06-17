@@ -1,92 +1,116 @@
-local Library = game.ReplicatedStorage.Library
-local Client = Library.Client
+--// ─────────────────────────────────────────────────────────
+--  SETUP
+--// ─────────────────────────────────────────────────────────
+local Library = game.ReplicatedStorage:WaitForChild("Library")
+local Client  = Library:WaitForChild("Client")
 
 local RAPCmds = require(Client.RAPCmds)
-local Network = require(Client.Network)
-local Save = require(Client.Save)
+local Save    = require(Client.Save)
 
--- Конфиг
+-- Конфиг цен
 _G.Config = {
-    ["All Huges"] = {Price = "+20%"},
-    ["Tower Defense Gift"] = {Price = "-5%", Amount = 5},
-    ["Huge Spring Griffin"] = {Price = "+20%"},
+    ["All Huges"]                 = {Price = "+20%"},
+    ["Tower Defense Gift"]        = {Price = "-5%", Amount = 5},
+    ["Huge Spring Griffin"]       = {Price = "+20%"},
     ["Golden Huge Spring Griffin"] = {Price = "-5"},
 }
 
--- Проверка, есть ли предмет в конфиге
-local function IsInConfig(name, className)
-    if _G.Config[name] then
+--// ─────────────────────────────────────────────────────────
+--  HELPERS
+--// ─────────────────────────────────────────────────────────
+
+-- 1. Проверяем, подпадает ли предмет под конфиг
+local function itemMatchesConfig(itemName, className)
+    if _G.Config[itemName] then                      -- точное совпадение
         return true
     end
-
-    -- All Huges применяется только к питомцам
-    if className == "Pet" and string.find(name, "Huge") and _G.Config["All Huges"] then
+    -- Правило "All Huges" действует ТОЛЬКО для питомцев
+    if className == "Pet" and itemName:find("Huge") and _G.Config["All Huges"] then
         return true
     end
-
     return false
 end
 
--- Применение модификатора RAP
-local function ModifyRAP(name, baseRAP, className)
-    local config = _G.Config[name]
-    if not config and className == "Pet" and string.find(name, "Huge") then
-        config = _G.Config["All Huges"]
+-- 2. Применяем ценовой модификатор
+local function applyPriceRule(itemName, className, baseRAP)
+    local rule = _G.Config[itemName]
+    if not rule and className == "Pet" and itemName:find("Huge") then
+        rule = _G.Config["All Huges"]
     end
-    if not config then return baseRAP end
+    if not rule then
+        return baseRAP
+    end
 
-    local priceStr = config.Price
-    if string.find(priceStr, "%%") then
-        local sign, percent = string.match(priceStr, "([%+%-])(%d+)%%")
-        percent = tonumber(percent)
-        if sign == "+" then
-            return math.floor(baseRAP * (1 + percent / 100))
+    local price = rule.Price
+    local sign , num , pct = price:match("([%+%-])(%d+)(%%?)")
+    num = tonumber(num or 0)
+
+    if pct == "%" then                               -- процент
+        local factor = (sign == "+" and 1 + num/100) or (1 - num/100)
+        return math.floor(baseRAP * factor)
+    else                                             -- абсолютное ±число
+        return baseRAP + (sign == "-" and -num or num)
+    end
+end
+
+-- 3. Создаём объект предмета, даже если модуль-таблица
+local function buildItem(className, itemData)
+    local itemsFolder = Library:FindFirstChild("Items")
+    if not itemsFolder then
+        warn("Library.Items folder missing")
+        return nil
+    end
+
+    local moduleScript = itemsFolder:FindFirstChild(className .. "Item")
+    if not moduleScript then
+        warn("Module for class '" .. className .. "' not found")
+        return nil
+    end
+
+    local Module = require(moduleScript)
+    local item
+
+    if typeof(Module) == "function" then             -- модуль-функция
+        item = Module(itemData.id)
+    elseif typeof(Module) == "table" then            -- модуль-таблица
+        if typeof(Module.Get) == "function" then
+            item = Module.Get(itemData.id)
+        elseif typeof(Module.new) == "function" then
+            item = Module.new(itemData.id)
         else
-            return math.floor(baseRAP * (1 - percent / 100))
+            warn("No constructor (Get/new) in module for class '" .. className .. "'")
+            return nil
         end
     else
-        return baseRAP + tonumber(priceStr)
+        warn("Unsupported module type for class '" .. className .. "'")
+        return nil
     end
+
+    -- Состояния предмета
+    if itemData.sh then item:SetShiny(true) end
+    if itemData.pt == 1 then
+        item:SetGolden()
+    elseif itemData.pt == 2 then
+        item:SetRainbow()
+    end
+    if itemData.tn then item:SetTier(itemData.tn) end
+
+    return item
 end
 
--- Получение RAP
-local function GetItemRAP(Class, ItemData)
-    local itemModulePath = Library.Items:FindFirstChild(Class .. "Item")
-    if not itemModulePath then
-        warn("Item module not found for class:", Class)
-        return 0
-    end
-
-    local ItemModule = require(itemModulePath)
-    if type(ItemModule) ~= "function" then
-        warn("Invalid ItemModule (not a function) for:", Class)
-        return 0
-    end
-
-    local Item = ItemModule(ItemData.id)
-
-    if ItemData.sh then
-        Item:SetShiny(true)
-    end
-    if ItemData.pt == 1 then
-        Item:SetGolden()
-    elseif ItemData.pt == 2 then
-        Item:SetRainbow()
-    end
-    if ItemData.tn then
-        Item:SetTier(ItemData.tn)
-    end
-
-    local baseRAP = RAPCmds.Get(Item) or 0
-    return ModifyRAP(ItemData.id, baseRAP, Class)
-end
-
--- Перебор инвентаря
+--// ─────────────────────────────────────────────────────────
+--  MAIN LOOP
+--// ─────────────────────────────────────────────────────────
 for className, itemList in pairs(Save.Get().Inventory) do
     for _, itemData in pairs(itemList) do
-        if IsInConfig(itemData.id, className) then
-            local rap = GetItemRAP(className, itemData)
-            print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
+        if itemMatchesConfig(itemData.id, className) then
+            local itemObj = buildItem(className, itemData)
+            if itemObj then
+                local baseRAP  = RAPCmds.Get(itemObj) or 0
+                local finalRAP = applyPriceRule(itemData.id, className, baseRAP)
+                print(string.format("[%s] %s: %d RAP (base %d)", className, itemData.id, finalRAP, baseRAP))
+            end
         end
     end
 end
+
