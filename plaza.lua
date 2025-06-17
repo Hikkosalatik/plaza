@@ -7,7 +7,6 @@ local Save = require(Client.Save)
 
 -- Пример конфигурации
 _G.Config = {
-    ["All Huges"] = {Price = "+20%"},
     ["Tower Defense Gift"] = {Price = "-5%", Amount = 5},
     ["Huge Spring Griffin"] = {Price = "+20%"},
     ["Golden Huge Spring Griffin"] = {Price = "-5"},
