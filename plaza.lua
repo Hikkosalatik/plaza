@@ -58,10 +58,10 @@ local exampleItem = {
     pt = 0,
     tn = false
 }
-for i,v in _G.Config do 
-    exampleItem[id] == i
+for itemName, config in pairs(_G.Config) do
+    exampleItem.id = itemName
 
-    local rap = GetItemRAP(v.Class, exampleItem)
-    print(rap)
+    local rap = GetItemRAP(config.Class, exampleItem)
+    print(string.format("[%s] %s: %d RAP", config.Class, itemName, rap))
 end
 
