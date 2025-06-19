@@ -1,4 +1,4 @@
-local Library = game.ReplicatedStorage:WaitForChild("Library")
+local Library = game:GetService("ReplicatedStorage"):WaitForChild("Library")
 local Client = Library:WaitForChild("Client")
 local Save = game:GetService("ReplicatedStorage").Library.Client.Save
 
