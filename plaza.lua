@@ -7,7 +7,7 @@ local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 -- Конфигурация
 _G.Config = {
     ["Tower Defense Gift"] = {Class = "Lootbox", Price = "-5%", Amount = 5},
-    ["Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
+    ["Golden Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
 }
 
 -- Применение модификатора цены
