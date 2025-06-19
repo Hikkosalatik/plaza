@@ -53,6 +53,8 @@ local function GetItemRAP(Class, ItemData)
 end
 
 -- Пример
+print("_G.Config содержит:", _G.Config and "есть" or "nil")
+print("Всего записей в конфиге:", (_G.Config and #_G.Config) or "нет длины (возможно словарь)")
 
 for itemName, config in _G.Config do
     print(itemName)
