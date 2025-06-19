@@ -1,6 +1,6 @@
 local Library = game.ReplicatedStorage:WaitForChild("Library")
 local Client = Library:WaitForChild("Client")
-local Save = game:GetService("ReplicatedStorage").Library.Client.Save
+local Save = require(Client.Save)
 
 local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 
@@ -61,8 +61,8 @@ local exampleItem = {
 }
 for itemName, config in pairs(_G.Config) do
     local className = config.Class
-    local inventory = game:GetService("ReplicatedStorage").Library.Client.Save.Get()--.Inventory[className]
-    for i,v in inventory do print(i,v) end
+    local inventory = Save.Get().Inventory[className]
+    
 
     for _, itemData in pairs(inventory) do
         if itemData.id == itemName then
