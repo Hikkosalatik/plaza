@@ -56,24 +56,43 @@ end
 
 for itemName, config in pairs(_G.Config) do
     local exampleItem = {
-    id = itemName,
-    sh = false,
-    pt = 0,
-    tn = false
+        id = itemName,
+        sh = false,
+        pt = 0,
+        tn = false
     }
-    if string.find(itemName,'Golden') then exampleItem[pt] = 1 itemName = string.gsub(itemName, "Golden ", "") end
-    if string.find(itemName,'Rainbow') then exampleItem[pt] = 2 itemName = string.gsub(itemName, "Rainbow ", "") end
-    if string.find(itemName,'Shiny') then exampleItem[sh] = true itemName = string.gsub(itemName, "Shiny ", "") end
-    exampleItem[id] = itemName
+
+    if string.find(itemName, "Golden") then
+        exampleItem.pt = 1
+        itemName = string.gsub(itemName, "Golden ", "")
+    end
+    if string.find(itemName, "Rainbow") then
+        exampleItem.pt = 2
+        itemName = string.gsub(itemName, "Rainbow ", "")
+    end
+    if string.find(itemName, "Shiny") then
+        exampleItem.sh = true
+        itemName = string.gsub(itemName, "Shiny ", "")
+    end
+
+    exampleItem.id = itemName  
+
     local className = config.Class
     local inventory = Save.Get().Inventory[className]
-    
 
-    for _, itemData in pairs(inventory) do
-        if itemData.id == itemName and itemData == exampleItem then
-            print("Найден предмет в инвентаре:", itemData.id)
-            local rap = GetItemRAP(className, exampleItem)
-            print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
+    if inventory then
+        for _, itemData in pairs(inventory) do
+            local match =
+                itemData.id == exampleItem.id and
+                (itemData.pt or 0) == exampleItem.pt and
+                (itemData.sh or false) == exampleItem.sh and
+                (itemData.tn or false) == exampleItem.tn
+
+            if match then
+                print("Найден предмет в инвентаре:", itemData.id)
+                local rap = GetItemRAP(className, itemData)
+                print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
+            end
         end
     end
 end
