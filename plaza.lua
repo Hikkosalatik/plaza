@@ -55,36 +55,37 @@ end
 -- Пример
 
 for itemName, config in pairs(_G.Config) do
+    local className = config.Class
+    local inventory = Save.Get().Inventory[className]
+
+    -- Клонируем имя для анализа
+    local parsedName = itemName
     local exampleItem = {
-        id = itemName,
+        id = "", -- будет установлен позже
         sh = false,
         pt = 0,
         tn = false
     }
 
-    if string.find(itemName, "Golden") then
+    if string.find(parsedName, "Golden") then
         exampleItem.pt = 1
-        itemName = string.gsub(itemName, "Golden ", "")
+        parsedName = string.gsub(parsedName, "Golden ", "")
     end
-    if string.find(itemName, "Rainbow") then
+    if string.find(parsedName, "Rainbow") then
         exampleItem.pt = 2
-        itemName = string.gsub(itemName, "Rainbow ", "")
+        parsedName = string.gsub(parsedName, "Rainbow ", "")
     end
-    if string.find(itemName, "Shiny") then
+    if string.find(parsedName, "Shiny") then
         exampleItem.sh = true
-        itemName = string.gsub(itemName, "Shiny ", "")
-        print(itemName)
+        parsedName = string.gsub(parsedName, "Shiny ", "")
     end
 
-    exampleItem.id = itemName  
-
-    local className = config.Class
-    local inventory = Save.Get().Inventory[className]
+    exampleItem.id = parsedName -- очищенное имя
 
     if inventory then
         for _, itemData in pairs(inventory) do
             local match =
-                itemData.id == exampleItem.id and
+                itemData.id == itemName and
                 (itemData.pt or 0) == exampleItem.pt and
                 (itemData.sh or false) == exampleItem.sh and
                 (itemData.tn or false) == exampleItem.tn
