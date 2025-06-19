@@ -87,7 +87,7 @@ for itemName, config in _G.Config do
     if inventory then
         for _, itemData in pairs(inventory) do
             local match =
-                itemData.id == itemName and
+                itemData.id == exampleItem.id and
                 (itemData.pt or 0) == exampleItem.pt and
                 (itemData.sh or false) == exampleItem.sh and
                 (itemData.tn or false) == exampleItem.tn
