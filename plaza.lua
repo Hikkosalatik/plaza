@@ -7,7 +7,7 @@ local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 -- Конфигурация
 _G.Config = {
     ["Tower Defense Gift"] = {Class = "Lootbox", Price = "-5%", Amount = 5},
-    ["Golden Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
+    ["Huge Spring Griffin"] = {Class = "Pet", Price = "+20%"},
 }
 
 -- Применение модификатора цены
@@ -61,15 +61,16 @@ for itemName, config in pairs(_G.Config) do
     pt = 0,
     tn = false
     }
-    if string.find(itemName,'Golden') then exampleItem[pt] = 1 end
-    if string.find(itemName,'Rainbow') then exampleItem[pt] = 2 end
-    if string.find(itemName,'Shiny') then exampleItem[sh] = true end
+    if string.find(itemName,'Golden') then exampleItem[pt] = 1 itemName = string.gsub(itemName, "Golden ", "") end
+    if string.find(itemName,'Rainbow') then exampleItem[pt] = 2 itemName = string.gsub(itemName, "Rainbow ", "") end
+    if string.find(itemName,'Shiny') then exampleItem[sh] = true itemName = string.gsub(itemName, "Shiny ", "") end
+    exampleItem[id] = itemName
     local className = config.Class
     local inventory = Save.Get().Inventory[className]
     
 
     for _, itemData in pairs(inventory) do
-        if itemData.id == itemName then
+        if itemData.id == itemName and itemData == exampleItem then
             print("Найден предмет в инвентаре:", itemData.id)
             local rap = GetItemRAP(className, exampleItem)
             print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
