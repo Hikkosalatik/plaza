@@ -54,7 +54,7 @@ end
 
 -- Пример
 
-for itemName, config in pairs(_G.Config) do
+for itemName, config in _G.Config do
     print(itemName)
     local className = config.Class
     local inventory = Save.Get().Inventory[className]
