@@ -5,18 +5,62 @@ local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Library = ReplicatedStorage:WaitForChild("Library")
 local Client = Library:WaitForChild("Client")
-
 local Save = require(Client:WaitForChild("Save"))
 local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 local Network = require(Client:WaitForChild("Network"))
+local HttpService = game:GetService("HttpService")
 
--- Конфигурация продаж
-_G.Config = {
-    ["Tower Defense Gift"] = {Class = "Lootbox", Price = "-5%", Amount = 5},
-    ["Huge Robot Ball"] = {Class = "Pet", Price = "-20%"},
-}
+local webhook = _G.URL
+local time = _G.TIME_UPDATE or 10
 
--- Парсинг имени
+if game.PlaceId == 8737899170 then
+    while task.wait(4) do
+        Network.Invoke("Travel to Trading Plaza")
+    end
+end
+
+local function sendWebhook(arg1,arg2,arg3,arg4,arg5)
+	local data = {
+		['content'] = 'Update every '.. time .. ' minutes',
+		["embeds"] = {{
+			title = "Huges: " .. arg1 .. 
+					"\nNuclear Dominus: " .. arg2 ..
+					"\nNightmare Cyclops: " .. arg3 ..
+					"\nArcade Angelus: " .. arg4 ..
+					"\nGifts: " .. arg5,
+			footer = { text = "Made by Hikko" }
+		}}
+	}
+	local newdata = HttpService:JSONEncode(data)
+	local headers = {["content-type"] = "application/json"}
+	local requestFunc = http_request or request or HttpPost or syn.request
+	if requestFunc then
+		requestFunc({Url = webhook, Body = newdata, Method = "POST", Headers = headers})
+	end
+end
+
+local function checkInventory()
+	local save = require(game.ReplicatedStorage.Library.Client.Save).Get()
+	local huge, gift, event1, event2, event3 = 0, 0, 0, 0, 0
+
+	for _, v in pairs(save.Inventory.Pet or {}) do
+		if v.id:find("Huge") then huge += 1 end
+	end
+	for _, v in pairs(save.Inventory.Lootbox or {}) do
+		if v.id == "Tower Defense Gift" then
+			gift = v._am or 1
+		end
+	end
+	for _, v in pairs(save.Inventory.Tower or {}) do
+		if v.id == "Nuclear Dominus" then event1 += 1 end
+		if v.id == "Nightmare Cyclops" then event2 += 1 end
+		if v.id == "Arcade Angelus" then event3 += 1 end
+	end
+
+	sendWebhook(huge, event1, event2, event3, gift)
+end
+
+
 local function ParseItemName(name)
     local parsed = name
     local sh = false
@@ -38,7 +82,6 @@ local function ParseItemName(name)
     return parsed, pt, sh
 end
 
--- Применение модификатора
 local function ApplyPriceModifier(baseRAP, priceStr)
     if not priceStr then return baseRAP end
 
@@ -53,7 +96,6 @@ local function ApplyPriceModifier(baseRAP, priceStr)
     end
 end
 
--- Получение RAP
 local function GetItemRAP(Class, ItemData)
     local ItemModule = require(Library.Items[Class .. "Item"])
     local Item = ItemModule(ItemData.id)
@@ -66,14 +108,6 @@ local function GetItemRAP(Class, ItemData)
     return RAPCmds.Get(Item) or 0
 end
 
--- Телепорт в буст
-if game.PlaceId == 8737899170 then
-    while task.wait(4) do
-        Network.Invoke("Travel to Trading Plaza")
-    end
-end
-
--- Занимаем буст
 local HaveBooth = false
 while not HaveBooth do 
     local BoothSpawns = workspace.TradingPlaza.BoothSpawns:FindFirstChildWhichIsA("Model")
@@ -99,7 +133,19 @@ LocalPlayer.Idled:Connect(function()
     end
 end)
 
--- Автоматическая продажа предметов из конфига
+task.spawn(function()
+	while task.wait(time * 60) do
+		pcall(checkInventory)
+	end
+end)
+
+task.spawn(function()
+    task.wait(30)
+    while task.wait(60) do
+        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Claim All"):InvokeServer()
+    end
+end)
+
 while task.wait(5) do
     local BoothQueue = {}
 
@@ -125,15 +171,12 @@ while task.wait(5) do
         end
     end
 
-    -- Сортировка по RAP
     table.sort(BoothQueue, function(a, b) return a.Rap > b.Rap end)
 
-    -- Выставление на продажу
     for _, v in ipairs(BoothQueue) do
         local maxAmount = math.min(v.Item._am or 1, v.MaxCfgAmount, 15000, math.floor(25e9 / v.Price))
         local result = Network.Invoke("Booths_CreateListing", v.UUID, math.ceil(v.Price), maxAmount)
-        print(string.format("Выставлено: [%s] %s за %s x%d (успех: %s)", v.Class, v.Item.id, v.Price, maxAmount, tostring(result)))
-        task.wait(1)
+        task.wait(5)
     end
 end
 
