@@ -176,7 +176,7 @@ while task.wait(5) do
     for _, v in ipairs(BoothQueue) do
         local maxAmount = math.min(v.Item._am or 1, v.MaxCfgAmount, 15000, math.floor(25e9 / v.Price))
         local result = Network.Invoke("Booths_CreateListing", v.UUID, math.ceil(v.Price), maxAmount)
-        task.wait(5)
+        task.wait(4)
     end
 end
 
