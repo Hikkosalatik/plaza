@@ -53,13 +53,17 @@ local function GetItemRAP(Class, ItemData)
 end
 
 -- Пример
-local exampleItem = {
-    id = "Tower Defense Gift",
+
+for itemName, config in pairs(_G.Config) do
+    local exampleItem = {
+    id = itemName,
     sh = false,
     pt = 0,
     tn = false
-}
-for itemName, config in pairs(_G.Config) do
+    }
+    if string.find(itemName,'Golden') then exampleItem[pt] = 1 end
+    if string.find(itemName,'Rainbow') then exampleItem[pt] = 2 end
+    if string.find(itemName,'Shiny') then exampleItem[sh] = true end
     local className = config.Class
     local inventory = Save.Get().Inventory[className]
     
@@ -67,7 +71,7 @@ for itemName, config in pairs(_G.Config) do
     for _, itemData in pairs(inventory) do
         if itemData.id == itemName then
             print("Найден предмет в инвентаре:", itemData.id)
-            local rap = GetItemRAP(className, itemData)
+            local rap = GetItemRAP(className, exampleItem)
             print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
         end
     end
