@@ -1,6 +1,6 @@
 local Library = game.ReplicatedStorage:WaitForChild("Library")
 local Client = Library:WaitForChild("Client")
-local Save = game.ReplicatedStorage.Library.Client.Save
+local Save = game:GetService("ReplicatedStorage").Library.Client.Save
 
 local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 
