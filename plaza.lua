@@ -79,7 +79,7 @@ for itemName, config in _G.Config do
     if string.find(parsedName, "Shiny") then
         exampleItem.sh = true
         parsedName = string.gsub(parsedName, "Shiny ", "")
-        print(111)
+        print(parsedName)
     end
 
     exampleItem.id = parsedName -- очищенное имя
