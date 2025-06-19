@@ -62,7 +62,7 @@ local exampleItem = {
 for itemName, config in pairs(_G.Config) do
     local className = config.Class
     --local inventory = Save.Get().Inventory[className]
-    for i,v in Save do print(i,v) end
+    for i,v in Save.Get() do print(i,v) end
 
 
     for _, itemData in pairs(inventory) do
