@@ -55,6 +55,7 @@ end
 -- Пример
 
 for itemName, config in pairs(_G.Config) do
+    print(itemName)
     local className = config.Class
     local inventory = Save.Get().Inventory[className]
 
@@ -78,6 +79,7 @@ for itemName, config in pairs(_G.Config) do
     if string.find(parsedName, "Shiny") then
         exampleItem.sh = true
         parsedName = string.gsub(parsedName, "Shiny ", "")
+        print(111)
     end
 
     exampleItem.id = parsedName -- очищенное имя
