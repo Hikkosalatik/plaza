@@ -59,9 +59,15 @@ local exampleItem = {
     tn = false
 }
 for itemName, config in pairs(_G.Config) do
-    exampleItem.id = itemName
+    local className = config.Class
+    local inventory = Client.Save.Get().Inventory[className]
 
-    local rap = GetItemRAP(config.Class, exampleItem)
-    print(string.format("[%s] %s: %d RAP", config.Class, itemName, rap))
+
+    for _, itemData in pairs(inventory) do
+        if itemData.id == itemName then
+            print("Найден предмет в инвентаре:", itemData.id)
+            local rap = GetItemRAP(className, itemData)
+            print(string.format("[%s] %s: %d RAP", className, itemData.id, rap))
+        end
+    end
 end
-
