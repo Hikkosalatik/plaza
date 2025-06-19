@@ -73,6 +73,7 @@ for itemName, config in pairs(_G.Config) do
     if string.find(itemName, "Shiny") then
         exampleItem.sh = true
         itemName = string.gsub(itemName, "Shiny ", "")
+        print(itemName)
     end
 
     exampleItem.id = itemName  
