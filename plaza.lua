@@ -9,7 +9,7 @@ local Save = require(Client:WaitForChild("Save"))
 local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 local Network = require(Client:WaitForChild("Network"))
 local HttpService = game:GetService("HttpService")
-
+repeat task.wait() until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
 local webhook = _G.URL
 local time = _G.TIME_UPDATE or 10
 
@@ -126,11 +126,18 @@ while not HaveBooth do
 end
 
 -- Anti-AFK
-LocalPlayer.Idled:Connect(function()
-    local character = LocalPlayer.Character
-    if character and character:FindFirstChild("Humanoid") then
-        character.Humanoid.Jump = true
-    end
+task.spawn(function()
+	while true do
+		local character = LocalPlayer.Character
+		local humanoid = character and character:FindFirstChild("Humanoid")
+		if humanoid then
+			for _ = 1, 2 do
+				humanoid.Jump = true
+				RunService.Heartbeat:Wait()
+			end
+		end
+		task.wait(15*60)
+	end
 end)
 
 task.spawn(function()
