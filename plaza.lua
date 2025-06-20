@@ -20,15 +20,28 @@ if game.PlaceId == 8737899170 then
     end
 end
 
-local function sendWebhook(arg1,arg2,arg3,arg4,arg5)
+local function shortenNumber(n)
+	if n >= 1e12 then
+		return string.format("%.2fT", n / 1e12)
+	elseif n >= 1e9 then
+		return string.format("%.2fB", n / 1e9)
+	elseif n >= 1e6 then
+		return string.format("%.2fM", n / 1e6)
+	elseif n >= 1e3 then
+		return string.format("%.2fK", n / 1e3)
+	else
+		return tostring(n)
+	end
+end
+
+local function sendWebhook(arg1,arg2,arg3)
 	local data = {
 		['content'] = 'Update every '.. time .. ' minutes',
-		["embeds"] = {{
-			title = "Huges: " .. arg1 .. 
-					"\nNuclear Dominus: " .. arg2 ..
-					"\nNightmare Cyclops: " .. arg3 ..
-					"\nArcade Angelus: " .. arg4 ..
-					"\nGifts: " .. arg5,
+		["embeds"] = {{        
+			title = LocalPlayer.Name ..
+                    "\nHuges: " .. arg1 .. 
+					"\nGems: " .. arg2 ..
+					"\nGifts: " .. arg3,
 			footer = { text = "Made by Hikko" }
 		}}
 	}
@@ -42,7 +55,7 @@ end
 
 local function checkInventory()
 	local save = require(game.ReplicatedStorage.Library.Client.Save).Get()
-	local huge, gift, event1, event2, event3 = 0, 0, 0, 0, 0
+	local huge, gift, event1 = 0, 0, 0
 
 	for _, v in pairs(save.Inventory.Pet or {}) do
 		if v.id:find("Huge") then huge += 1 end
@@ -52,13 +65,11 @@ local function checkInventory()
 			gift = v._am or 1
 		end
 	end
-	for _, v in pairs(save.Inventory.Tower or {}) do
-		if v.id == "Nuclear Dominus" then event1 += 1 end
-		if v.id == "Nightmare Cyclops" then event2 += 1 end
-		if v.id == "Arcade Angelus" then event3 += 1 end
+	for _, v in pairs(save.Inventory.Currebcy or {}) do
+		if v.id == "Diamonds" then event1 = shortenNumber(v._am) end
 	end
 
-	sendWebhook(huge, event1, event2, event3, gift)
+	sendWebhook(huge, event1, gift)
 end
 
 
