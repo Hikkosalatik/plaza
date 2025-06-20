@@ -13,6 +13,7 @@ local VirtualUser = game:GetService("VirtualUser")
 repeat task.wait() until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
 local webhook = _G.URL
 local time = _G.TIME_UPDATE or 10
+local mode = _G.Sell_Mode or "Random"
 
 if game.PlaceId == 8737899170 then
     while task.wait(4) do
@@ -192,7 +193,19 @@ while task.wait(5) do
         end
     end
 
-    table.sort(BoothQueue, function(a, b) return a.Rap > b.Rap end)
+    if mode == "Maximize" then
+	    table.sort(BoothQueue, function(a, b) return a.Rap > b.Rap end)
+    elseif mode == "Minimize" then
+	    table.sort(BoothQueue, function(a, b) return a.Rap < b.Rap end)
+    elseif mode == "Random" then
+	    local function shuffle(t)
+		    for i = #t, 2, -1 do
+			    local j = math.random(i)
+			    t[i], t[j] = t[j], t[i]
+		    end
+	    end
+	    shuffle(BoothQueue)
+    end
 
     for _, v in ipairs(BoothQueue) do
         local maxAmount = math.min(v.Item._am or 1, v.MaxCfgAmount, 15000, math.floor(25e9 / v.Price))
@@ -200,5 +213,3 @@ while task.wait(5) do
         task.wait(4)
     end
 end
-
-
