@@ -65,7 +65,7 @@ local function checkInventory()
 			gift = v._am or 1
 		end
 	end
-	for _, v in pairs(save.Inventory.Currebcy or {}) do
+	for _, v in pairs(save.Inventory.Currency or {}) do
 		if v.id == "Diamonds" then event1 = shortenNumber(v._am) end
 	end
 
