@@ -9,6 +9,7 @@ local Save = require(Client:WaitForChild("Save"))
 local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 local Network = require(Client:WaitForChild("Network"))
 local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
 repeat task.wait() until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
 local webhook = _G.URL
 local time = _G.TIME_UPDATE or 10
@@ -126,19 +127,21 @@ while not HaveBooth do
 end
 
 -- Anti-AFK
-task.spawn(function()
-	while true do
-		local character = LocalPlayer.Character
-		local humanoid = character and character:FindFirstChild("Humanoid")
-		if humanoid then
-			for _ = 1, 2 do
-				humanoid.Jump = true
-				RunService.Heartbeat:Wait()
-			end
-		end
-		task.wait(15*60)
-	end
+
+for _, v in pairs(getconnections(LocalPlayer.Idled)) do v:Disable() end
+LocalPlayer.Idled:Connect(function() VirtualUser:ClickButton2(Vector2.new(math.random(0, 1000), math.random(0, 1000))) end)
+
+old = hookmetamethod(game, "__namecall", function(self, ...)
+    local method = getnamecallmethod()
+    if not checkcaller() then
+        local Name = tostring(self)
+        if table.find({"Server Closing", "Idle Tracking: Update Timer", "Move Server"}, Name) then
+            return nil
+        end
+    end
+    return old(self, ...)
 end)
+Network.Fire("Idle Tracking: Stop Timer")
 
 task.spawn(function()
 	while task.wait(time * 60) do
@@ -186,4 +189,5 @@ while task.wait(5) do
         task.wait(4)
     end
 end
+
 
