@@ -40,9 +40,9 @@ local function sendWebhook(arg1,arg2,arg3)
 		['content'] = 'Update every '.. time .. ' minutes',
 		["embeds"] = {{        
 			title = LocalPlayer.Name ..
-                    "\nHuges: " .. arg1 .. 
-					"\nGems: " .. arg2 ..
-					"\nMagma Gifts: " .. arg3,
+                    		"\nHuges: " .. arg1 .. 
+				"\nGems: " .. arg2 ..
+				"\nMagma Gifts: " .. arg3,
 			footer = { text = "Made by Hikko" }
 		}}
 	}
