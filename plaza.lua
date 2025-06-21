@@ -42,7 +42,7 @@ local function sendWebhook(arg1,arg2,arg3)
 			title = LocalPlayer.Name ..
                     "\nHuges: " .. arg1 .. 
 					"\nGems: " .. arg2 ..
-					"\nGifts: " .. arg3,
+					"\nMagma Gifts: " .. arg3,
 			footer = { text = "Made by Hikko" }
 		}}
 	}
@@ -62,7 +62,7 @@ local function checkInventory()
 		if v.id:find("Huge") then huge += 1 end
 	end
 	for _, v in pairs(save.Inventory.Lootbox or {}) do
-		if v.id == "Tower Defense Gift" then
+		if v.id == "Magma Tower Defense Gift" then
 			gift = v._am or 1
 		end
 	end
