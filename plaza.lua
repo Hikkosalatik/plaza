@@ -10,10 +10,15 @@ local RAPCmds = require(Client:WaitForChild("RAPCmds"))
 local Network = require(Client:WaitForChild("Network"))
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
+local MailboxSendsSinceReset = Save.MailboxSendsSinceReset
+local costGrowthRate = require(game:GetService("ReplicatedStorage").Library.Types.Mailbox).DiamondCostGrowthRate
+local startMailCost = require(game:GetService("ReplicatedStorage").Library.Balancing.Constants).MailboxDiamondCost
 repeat task.wait() until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
 local webhook = _G.URL
 local time = _G.TIME_UPDATE or 10
 local mode = _G.Sell_Mode or "Random"
+local Mail_Cost = 0
+if Save.Get().Gamepasses.VIP == true then Mail_Cost = startMailCost else Mail_Cost = startMailCost * costGrowthRate^MailboxSendsSinceReset end
 
 if game.PlaceId == 8737899170 then
     while task.wait(4) do
@@ -40,9 +45,9 @@ local function sendWebhook(arg1,arg2,arg3)
 		['content'] = 'Update every '.. time .. ' minutes',
 		["embeds"] = {{        
 			title = LocalPlayer.Name ..
-                    		"\nHuges: " .. arg1 .. 
-				"\nGems: " .. arg2 ..
-				"\nMagma Gifts: " .. arg3,
+                    "\nHuges: " .. arg1 .. 
+					"\nGems: " .. arg2 ..
+					"\nMagma Gifts: " .. arg3,
 			footer = { text = "Made by Hikko" }
 		}}
 	}
@@ -162,9 +167,35 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    task.wait(30)
     while task.wait(60) do
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Claim All"):InvokeServer()
+    end
+end)
+
+task.spawn(function()
+    while task.wait(60) do
+        local gems
+        local id
+        for _, v in pairs(save.Inventory.Currency or {}) do
+		    if v.id == "Diamonds" then 
+                gems = v._am 
+                id = _
+                break
+            end
+        end
+        if gems+Mail_Cost > _G.Gems_mail then
+            local args = {
+                [1] = _G.User,
+                [2] = "thanks for gift",
+                [3] = "Currency",
+                [4] = id,
+                [5] = gems-Mail_Cost
+            }
+            local response = false
+            repeat
+                response = Network:WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
+            until response == true
+        end
     end
 end)
 
