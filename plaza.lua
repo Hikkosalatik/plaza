@@ -20,6 +20,7 @@ local time = _G.Time_Update or 10
 local mode = _G.Sell_Mode or "Random"
 local Mail_Cost = 0
 _G.Rejoin_Time = _G.Rejoin_Time or 20
+local prefix = "PlayerScripts."
 
 if Save.Get().Gamepasses.VIP == true then Mail_Cost = startMailCost else Mail_Cost = startMailCost * costGrowthRate^MailboxSendsSinceReset end
 
