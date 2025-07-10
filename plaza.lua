@@ -447,6 +447,13 @@ local function GetItemRAP(Class, ItemData)
     return RAPCmds.Get(Item) or 0
 end
 
+if _G.Optimization then 
+    simplifyVisuals() 
+    task.wait(5)
+    DestroyFiltered(LocalPlayer:WaitForChild("PlayerScripts"))
+end
+task.wait(3)
+
 local HaveBooth = false
 while not HaveBooth do 
     local BoothSpawns = workspace.TradingPlaza.BoothSpawns:FindFirstChildWhichIsA("Model")
@@ -481,12 +488,6 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
 end)
 Network.Fire("Idle Tracking: Stop Timer")
 
-if _G.Optimization then 
-    simplifyVisuals() 
-    task.wait(5)
-    DestroyFiltered(LocalPlayer:WaitForChild("PlayerScripts"))
-end
-task.wait(3)
 task.spawn(function()
     workspace.DescendantAdded:Connect(function(obj)
         task.defer(function()
