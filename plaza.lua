@@ -294,47 +294,58 @@ end
 
     
 
-local function simplifyVisuals()
+local function simplifyObject(obj)
     local simpleTextureId = "rbxassetid://0"
-    local processed = 0
 
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("ParticleEmitter")
-        or obj:IsA("Trail")
-        or obj:IsA("Beam")
-        or obj:IsA("Smoke")
-        or obj:IsA("Fire")
-        or obj:IsA("Sparkles")
-        or obj:IsA("Explosion")
-        or obj:IsA("Light")
-        or obj:IsA("PointLight")
-        or obj:IsA("SpotLight")
-        or obj:IsA("SurfaceLight") then
-            pcall(function() obj:Destroy() end)
+    if obj:IsA("ParticleEmitter")
+    or obj:IsA("Trail")
+    or obj:IsA("Beam")
+    or obj:IsA("Smoke")
+    or obj:IsA("Fire")
+    or obj:IsA("Sparkles")
+    or obj:IsA("Explosion")
+    or obj:IsA("Light")
+    or obj:IsA("PointLight")
+    or obj:IsA("SpotLight")
+    or obj:IsA("SurfaceLight") then
+        pcall(function() obj:Destroy() end)
 
-        elseif obj:IsA("Decal") or obj:IsA("Texture") then
+    elseif obj:IsA("Decal") or obj:IsA("Texture") then
+        pcall(function()
             obj.Texture = simpleTextureId
             obj.Transparency = 1
+        end)
 
-        elseif obj:IsA("SurfaceAppearance") then
-            obj:Destroy()
+    elseif obj:IsA("SurfaceAppearance") then
+        pcall(function() obj:Destroy() end)
 
-        elseif obj:IsA("MeshPart") then
+    elseif obj:IsA("MeshPart") then
+        pcall(function()
             obj.TextureID = ""
             obj.Material = Enum.Material.Plastic
             obj.Transparency = 1
+        end)
 
-        elseif obj:IsA("BasePart") then
+    elseif obj:IsA("BasePart") then
+        pcall(function()
             obj.Material = Enum.Material.Plastic
             obj.Transparency = 1
             obj.Reflectance = 0
-        end
+        end)
+    end
+end
+
+local function simplifyVisuals()
+    local processed = 0
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        simplifyObject(obj)
         processed += 1
         if processed % 1000 == 0 then
-            task.wait(0.1) 
+            task.wait(0.1)
         end
     end
 end
+
 
 local function shortenNumber(n)
 	if n >= 1e12 then
@@ -475,19 +486,28 @@ if _G.Optimization then
     task.wait(5)
     DestroyFiltered(LocalPlayer:WaitForChild("PlayerScripts"))
 end
+task.wait(3)
+task.spawn(function()
+    workspace.DescendantAdded:Connect(function(obj)
+        task.defer(function()
+            simplifyObject(obj)
+        end)
+    end)
+end)
+task.wait()
 
 task.spawn(function()
 	while task.wait(time * 60) do
 		pcall(checkInventory)
 	end
 end)
-
+task.wait()
 task.spawn(function()
     while task.wait(60) do
         game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Claim All"):InvokeServer()
     end
 end)
-
+task.wait()
 task.spawn(function()
     while task.wait(60) do
         local gems, id
@@ -521,7 +541,7 @@ task.spawn(function()
         end
     end
 end)
-
+task.wait()
 task.spawn(function()
     while true do
         task.wait(60) -- проверка каждую минуту
