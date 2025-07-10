@@ -467,7 +467,7 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
     end
     return old(self, ...)
 end)
-Network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
+Network.Fire("Idle Tracking: Stop Timer")
 
 if _G.Optimization then 
     simplifyVisuals() 
