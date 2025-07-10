@@ -637,13 +637,16 @@ while task.wait(5) do
         until #Save.Get().BoothRecovery < BoothSlots
 
         local result = Network.Invoke("Booths_CreateListing", v.UUID, math.ceil(v.Price), maxAmount)
-        if type(result) == "table" and typeof(result[1]) == "string" and result[1] ~= "" then
-            local petName = result[1]
-            print("Listed:", petName)
-		    lastSuccessfulListing = os.time()
+        if result == true then
+            print("Listing success")
+            lastSuccessfulListing = os.time()
+        elseif type(result) == "table" and type(result[1]) == "string" then
+            print("✅ Listing success:", result[1])
+            lastSuccessfulListing = os.time()
         else
-            print("Listing failed or empty result")
+            print("❌ Listing failed or empty result. Got:", typeof(result), result)
         end
+
 
         task.wait(3) 
     end
