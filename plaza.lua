@@ -296,6 +296,7 @@ end
 
 local function simplifyVisuals()
     local simpleTextureId = "rbxassetid://0"
+    local processed = 0
 
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("ParticleEmitter")
