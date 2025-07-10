@@ -14,15 +14,323 @@ local MailboxSendsSinceReset = Save.MailboxSendsSinceReset
 local costGrowthRate = require(game:GetService("ReplicatedStorage").Library.Types.Mailbox).DiamondCostGrowthRate
 local startMailCost = require(game:GetService("ReplicatedStorage").Library.Balancing.Constants).MailboxDiamondCost
 repeat task.wait() until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+
 local webhook = _G.URL
-local time = _G.TIME_UPDATE or 10
+local time = _G.Time_Update or 10
 local mode = _G.Sell_Mode or "Random"
 local Mail_Cost = 0
+_G.Rejoin_Time = _G.Rejoin_Time or 20
+
 if Save.Get().Gamepasses.VIP == true then Mail_Cost = startMailCost else Mail_Cost = startMailCost * costGrowthRate^MailboxSendsSinceReset end
 
+local BoothSlots = Save.Get().BoothSlots
+local lastSuccessfulListing = os.time()
 if game.PlaceId == 8737899170 then
     while task.wait(4) do
         Network.Invoke("Travel to Trading Plaza")
+    end
+end
+
+    local rawList = [[
+    Scripts.Game.Misc.World Animations.PlanetAnimations
+    Scripts.Game.Trading Plaza Portal
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Subtitle
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame
+    Scripts.Game.Music
+    Scripts.Game.Pets.Modifier VFX
+    PlayerModule.CameraModule.OrbitalCamera
+    Scripts.Game.Misc.Fantasy Transition TEMP
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui
+    Scripts.Core.Voice Chat Trading Server
+    Scripts.Game.Misc.World Animations.Balloons - Castle
+    Scripts.GUIs.Boosts Panel V3.Types
+    Scripts.GUIs.Prison Key Surge Sign
+    Scripts.Game.Misc.World Animations
+    Scripts.Game.Breakables.Damage Statistics Manager
+    Scripts.Game.Misc.World Animations.Windmill Animation
+    PlayerModule.ControlModule.DynamicThumbstick
+    Scripts.GUIs.Boosts Panel V3.Modules.__BLUEPRINT
+    Scripts.Game.Breakables
+    PlayerModule.CameraModule.VRBaseCamera
+    PlayerModule.ControlModule.TouchJump
+    PlayerModule.CameraModule.VehicleCamera.VehicleCameraCore
+    PlayerModule.ControlModule
+    PlayerModule.CameraModule.BaseCamera
+    Scripts.Game.Castle Door
+    Scripts.Game.Misc.World Animations.Spike Animation
+    Scripts.Game.My Guild Banner
+    Scripts.GUIs.Boosts Panel V3.Modules.Capes
+    Scripts.Game.Misc.World Animations.Door Glow Animation
+    Scripts.Game.Physical Eggs Frontend
+    Scripts.Core.Chat Nametags.Filters
+    Scripts.Core.Idle Tracking
+    PlayerModule.CommonUtils.ConnectionUtil
+    Scripts.Game.Egg Opening Frontend
+    Scripts.Game.Misc.Huge Event Billboard
+    Scripts.Game.Upgrades Frontend
+    PlayerModule.CameraModule.VehicleCamera.VehicleCameraConfig
+    PlayerModule.CameraModule.VRVehicleCamera
+    PlayerModule.ControlModule.TouchThumbstick
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar
+    Scripts.Test.Test Riding
+    Scripts.GUIs.Instances.BasketballCalendar
+    Scripts.GUIs.Boosts Panel V3.Modules.Friends
+    Scripts.Game.Time Trials
+    Scripts.Game.Tower Tycoon Raffle Boards
+    Scripts.Test.UI Resize Finder
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Completed.UITextSizeConstraint
+    PlayerModule.CameraModule.Invisicam
+    Scripts.GUIs.World GUIs
+    Scripts.Game.Machines.Item Index
+    Scripts.Core.Custom Chat Filtering
+    Scripts.GUIs.Boosts Panel V3
+    PlayerModule.CameraModule.BaseOcclusion
+    Scripts.Game.Misc.World Animations.Rainbow Road Animations
+    Scripts.GUIs.Tower Players Billboard Gui
+    PlayerModule.CameraModule.CameraToggleStateController
+    Scripts.GUIs.Boosts Panel V3.Modules.Gamepasses
+    Scripts.GUIs.Hype Eggs
+    Scripts.GUIs.Boosts Panel V3.Modules.TowerXpDouble
+    Scripts.Game.Breakables.Breakables Frontend
+    Scripts.GUIs.Free Gifts
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Subtitle.UIStroke
+    PlayerModule.ControlModule.VehicleController
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Title.UITextSizeConstraint
+    Scripts.GUIs.Random Active Drops
+    Scripts.Game.Misc.Egg Promo.Egg Billboard Pets Cards
+    Scripts.Game.Misc.World Animations.Enchanted Lights Animation
+    Scripts.Game.Misc.Prison World.Prison Doors
+    Scripts.Game.Clan Castle Door
+    Scripts.Game.Misc.World Animations.VIP Water Chests
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar.Bar.UIGradient
+    Scripts.Game.Misc.Egg Promo
+    Scripts.GUIs.Boosts Panel V3.Modules.Subscriptions
+    Scripts.Game.Misc.World Animations.Castle Propeller Cat
+    Scripts.Test.Test Message
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar.UICorner
+    PlayerModule.CommonUtils.FlagUtil
+    PlayerModule.CommonUtils.CameraWrapper
+    PlayerModule.ControlModule.Gamepad
+    Scripts.Core.Product Notifications
+    Scripts.Game.Misc.World Animations.Toilet Cat Outhouse
+    Scripts.Game.Items
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar.Bar.UIStroke
+    Scripts.GUIs.Currency 2
+    ParallelPetExport
+    PlayerModule.ControlModule.BaseCharacterController
+    Scripts.Game.Pets
+    Parallel Pet Actors
+    Scripts.GUIs.Trade Notification
+    Scripts.Game.Machine Animations.Upgrade Presents Anim
+    Scripts.GUIs.Teleports Map OLD
+    Scripts.GUIs.Boosts Panel V3.Modules.FishingEvent
+    PlayerModule.CameraModule.MouseLockController
+    Scripts.Game.Water Detector
+    PlayerModule.CameraModule.ClassicCamera
+    Parallel Pet Actors.ParallelPet
+    Scripts.Test.Memory Report
+    Scripts.Test.Show Instance Counts
+    Scripts.Test.Test Notifications
+    Scripts.Game.Gamepasses
+    Scripts.Test.Test Raid UI
+    Scripts.Test.Print Damage Factor
+    Scripts.Test.Test Exclamation
+    Scripts.Test.Find Skinned Meshes
+    Scripts.Game.Trading Plaza
+    Scripts.Test.Test Rain
+    Scripts.Test.Test Fireworks
+    Scripts.Game.Enchants
+    Scripts.Test.Test Confetti
+    Scripts.Test.Disable Development UI On Boot
+    Scripts.Test
+    Scripts.Misc
+    Scripts.Game.Farming.Farming Gift Notification
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar.UIStroke
+    Scripts.Game.Pets.Modifier VFX.📖 README
+    Scripts.Game.Misc.Prison World
+    Scripts.GUIs.Boosts Panel V3.Modules.Rebirths
+    Scripts.Test.MessageTesting
+    Scripts.Game.Gates Frontend
+    Scripts.Game.Machines.Tower AFK
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Completed.UIStroke
+    PlayerModule.CameraModule.CameraInput
+    Scripts.Game.Misc.Rebirth VFX
+    PlayerModule
+    Scripts.Game.Events.Basketball
+    Scripts.Game.Farming
+    PlayerModule.CameraModule
+    Scripts.Game.Misc.World Animations.PlanetAnimationsOLD
+    Scripts.Game.Misc.World Animations.Disco Bulbs AnimationOLD
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar.Bar
+    Scripts.GUIs.Boosts Panel V3.Modules.SaturdayBuff
+    Scripts.Game.Misc.World Animations.Balloons
+    Scripts.Test.Disable Player List Menu
+    Scripts.Game.Misc.World Animations.Gate Countdown
+    Scripts.GUIs.Instances
+    Scripts.Game.Machines.Doodle Upgrade Machine
+    Scripts.GUIs.Boosts Panel V3.Modules.Effects
+    Scripts.GUIs.Boosts Panel V3.Modules.Boost Exchange
+    Scripts.Game.Egg Opening Frontend.EggPositions
+    Scripts.Game.Misc.World Animations.Lighthouse Animation
+    Scripts.Game.Doodle World.Doodle Jar
+    Scripts.GUIs.PETS GO Countdown
+    Scripts.Game.Doodle World
+    Scripts.Game.Raffles
+    PlayerModule.ControlModule.PathDisplay
+    Scripts.Game.Misc.Egg Promo.Egg Pets Farming
+    Scripts.Game.Misc.Egg Promo.Monday Pets Fantasy
+    Scripts.Game.Misc.World Animations.Window Glow Animation
+    Scripts.Game.Random Events
+    Scripts.Game.Misc.Notification Prompt
+    PlayerModule.CameraModule.Poppercam
+    Scripts.GUIs.Boosts Panel V3.BasketballEvent
+    Scripts.Game.Physical Eggs Frontend.LuckModifiers
+    Scripts.GUIs.Boosts Panel V3.Modules.Fruit
+    PlayerModule.ControlModule.ClickToMoveDisplay
+    Scripts.Game.Top Guild Banner
+    PlayerModule.CameraModule.CameraUI
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Completed
+    Scripts.Core.Chat Nametags
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.UIListLayout
+    PlayerModule.CameraModule.VRCamera
+    PlayerModule.CameraModule.TransparencyController
+    Scripts.GUIs.Boosts Panel V3.Modules.FactoryPoints
+    Scripts.Game.Events.Hacker.UFO Invasion
+    Scripts.Game.Events.Hacker
+    Scripts.Game.Events.Obby.Summer Event Notification
+    Scripts.Game.Events
+    PlayerModule.CommonUtils
+    PlayerModule.CameraModule.VehicleCamera
+    PlayerModule.CameraModule.LegacyCamera
+    Scripts.Game.Ultimates
+    Scripts.Game.Trading Plaza.Main Game Portal
+    Scripts.Game.Mastery (Square Version)
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Title.UIStroke
+    Scripts.Game.ForeverPacks
+    Scripts.GUIs.Ranks.Sound
+    Scripts.Game.Worlds.Olympus World
+    Scripts.Game.Race Rewards
+    Scripts.Game.Breakable VFX (Enchants, etc.)
+    Scripts.Game.Machine Animations.Pickaxe Machine Anim
+    Scripts.Game.Machine Animations
+    Scripts.Game.Instancing
+    Scripts.Game.Worlds.Obby World
+    Scripts.GUIs
+    Scripts.Game.Misc.Potato Mode Setting
+    Scripts.GUIs.Boosts Panel V3.Modules.Potions
+    Scripts.GUIs.Egg Deal
+    Scripts.Game.Machines
+    Scripts.Game.Worlds
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.ProgressBar.Bar.UICorner
+    PlayerModule.CommonUtils.CharacterUtil
+    Scripts.Game.Machines.Fantasy Shard Machine
+    Scripts.GUIs.Ranks
+    Scripts.Game.Misc.Favorite Prompt
+    Scripts.GUIs.New Player Tasks
+    Scripts.Game.Misc.Instances
+    Scripts.Game.Events.Farming
+    Scripts.Game
+    Scripts.GUIs.Zone Progress Bar
+    Scripts.Game.Misc
+    Scripts.Core.Controller
+    Scripts.Game.Guild Chat (Hide Locally)
+    PlayerModule.ControlModule.VRNavigation
+    Scripts.Game.Tower Tycoon Raffle Boards.TicketSelector
+    Scripts.GUIs.Chat Filters
+    Scripts.Game.Scary Pet
+    Scripts
+    Scripts.Game.ForeverPacks.Lucky Pack
+    Scripts.Game.Machines.Vending Machines
+    Scripts.Game.Misc.World Animations.Preston Shop
+    PlayerModule.ControlModule.ClickToMoveController
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Subtitle.UITextSizeConstraint
+    PlayerModule.CameraModule.ZoomController
+    Scripts.Game.Misc.World Animations.Door Cats NPC
+    Scripts.Core.Disable Chat on Join
+    PlayerModule.ControlModule.Keyboard
+    Scripts.GUIs.Boosts Panel V3.Modules.Buffs
+    Scripts.GUIs.Boosts Panel V3.Modules
+    Scripts.Game.Misc.Instances.MillionaireRun
+    PlayerModule.CameraModule.CameraUtils
+    Scripts.GUIs.Ultimates HUD
+    Scripts.Game.Misc.Tutorial
+    PlayerModule.CameraModule.ZoomController.Popper
+    Scripts.Game.Misc.World Animations.Castle Cat NPC
+    Scripts.Test.Test Award Notif
+    Scripts.Core.Disable PlaySolo Chat
+    Scripts.GUIs.Monetization.Free Huge
+    Scripts.Game.Misc.World Animations.Sandcastle Flag Animation
+    Scripts.Game.Events.Obby
+    Scripts.GUIs.Tower Players Billboard Gui.BillboardGui.Frame.Title
+    Scripts.Core
+    Scripts.Game.Misc.World Animations.The Hacker Cubes
+    Scripts.GUIs.Monetization
+    Scripts.GUIs.Boosts Panel V3.Modules.Guilds
+    ]]
+
+    local excludedPaths = {}
+    for line in rawList:gmatch("[^\r\n]+") do
+        excludedPaths[prefix .. line] = true
+    end
+    local function getPathFrom(root, obj)
+        local path = obj.Name
+        local parent = obj.Parent
+        while parent and parent ~= root do
+            path = parent.Name .. "." .. path
+            parent = parent.Parent
+        end
+        return parent == root and "PlayerScripts." .. path or nil
+    end
+    local function DestroyFiltered(root)
+        for _, obj in ipairs(root:GetDescendants()) do
+            local relativePath = getPathFrom(root, obj)
+            if relativePath and not excludedPaths[relativePath] then
+                pcall(function() obj:Destroy() end)
+                task.wait()
+            end
+        end
+    end
+
+    
+
+local function simplifyVisuals()
+    local simpleTextureId = "rbxassetid://0"
+
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter")
+        or obj:IsA("Trail")
+        or obj:IsA("Beam")
+        or obj:IsA("Smoke")
+        or obj:IsA("Fire")
+        or obj:IsA("Sparkles")
+        or obj:IsA("Explosion")
+        or obj:IsA("Light")
+        or obj:IsA("PointLight")
+        or obj:IsA("SpotLight")
+        or obj:IsA("SurfaceLight") then
+            pcall(function() obj:Destroy() end)
+
+        elseif obj:IsA("Decal") or obj:IsA("Texture") then
+            obj.Texture = simpleTextureId
+            obj.Transparency = 1
+
+        elseif obj:IsA("SurfaceAppearance") then
+            obj:Destroy()
+
+        elseif obj:IsA("MeshPart") then
+            obj.TextureID = ""
+            obj.Material = Enum.Material.Plastic
+            obj.Transparency = 1
+
+        elseif obj:IsA("BasePart") then
+            obj.Material = Enum.Material.Plastic
+            obj.Transparency = 1
+            obj.Reflectance = 0
+        end
+        processed += 1
+        if processed % 1000 == 0 then
+            task.wait(0.1) 
+        end
     end
 end
 
@@ -47,7 +355,7 @@ local function sendWebhook(arg1,arg2,arg3)
 			title = LocalPlayer.Name ..
                     "\nHuges: " .. arg1 .. 
 					"\nGems: " .. arg2 ..
-					"\nMagma Gifts: " .. arg3,
+					"\nBuff Gym Gifts: " .. arg3,
 			footer = { text = "Made by Hikko" }
 		}}
 	}
@@ -60,14 +368,14 @@ local function sendWebhook(arg1,arg2,arg3)
 end
 
 local function checkInventory()
-	local save = require(game.ReplicatedStorage.Library.Client.Save).Get()
+	local save = Save.Get()
 	local huge, gift, event1 = 0, 0, 0
 
 	for _, v in pairs(save.Inventory.Pet or {}) do
 		if v.id:find("Huge") then huge += 1 end
 	end
 	for _, v in pairs(save.Inventory.Lootbox or {}) do
-		if v.id == "Magma Tower Defense Gift" then
+		if v.id == "Buff Gym Gift" then
 			gift = v._am or 1
 		end
 	end
@@ -80,25 +388,25 @@ end
 
 
 local function ParseItemName(name)
-    local parsed = name
-    local sh = false
-    local pt = 0
+	local parsed = name
+	local sh = false
+	local pt = 0
 
-    if parsed:find("Golden") then
-        pt = 1
-        parsed = parsed:gsub("Golden ", "")
-    end
-    if parsed:find("Rainbow") then
-        pt = 2
-        parsed = parsed:gsub("Rainbow ", "")
-    end
-    if parsed:find("Shiny") then
-        sh = true
-        parsed = parsed:gsub("Shiny ", "")
-    end
+	if string.find(parsed, "Shiny") then
+		sh = true
+		parsed = parsed:gsub("Shiny%s*", "") 
+	end
+	if string.find(parsed, "Golden") then
+		pt = 1
+		parsed = parsed:gsub("Golden%s*", "")
+	elseif string.find(parsed, "Rainbow") then
+		pt = 2
+		parsed = parsed:gsub("Rainbow%s*", "")
+	end
 
-    return parsed, pt, sh
+	return parsed, pt, sh
 end
+
 
 local function ApplyPriceModifier(baseRAP, priceStr)
     if not priceStr then return baseRAP end
@@ -158,7 +466,13 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
     end
     return old(self, ...)
 end)
-Network.Fire("Idle Tracking: Stop Timer")
+Network:WaitForChild("Idle Tracking: Stop Timer"):FireServer()
+
+if _G.Optimization then 
+    simplifyVisuals() 
+    task.wait(5)
+    DestroyFiltered(LocalPlayer:WaitForChild("PlayerScripts"))
+end
 
 task.spawn(function()
 	while task.wait(time * 60) do
@@ -174,30 +488,72 @@ end)
 
 task.spawn(function()
     while task.wait(60) do
-        local gems
-        local id
-        for _, v in pairs(save.Inventory.Currency or {}) do
-		    if v.id == "Diamonds" then 
-                gems = v._am 
-                id = _
+        local gems, id
+        for index, v in pairs(Save.Get().Inventory.Currency or {}) do
+            if v.id == "Diamonds" then
+                gems = v._am
+                id = index
                 break
             end
         end
-        if gems+Mail_Cost > _G.Gems_mail then
-            local args = {
-                [1] = _G.User,
-                [2] = "thanks for gift",
-                [3] = "Currency",
-                [4] = id,
-                [5] = gems-Mail_Cost
-            }
-            local response = false
+        if gems and (gems + Mail_Cost > _G.Gems_mail) then
             repeat
-                response = Network:WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
+                gems = 0
+                for _, v in pairs(Save.Get().Inventory.Currency or {}) do
+                    if v.id == "Diamonds" then
+                        gems = v._am
+                        break
+                    end
+                end
+                local args = {
+                    [1] = _G.User,
+                    [2] = "thanks for gift",
+                    [3] = "Currency",
+                    [4] = id,
+                    [5] = gems - Mail_Cost
+                }
+                local response = false
+                task.wait(1)
+                response = game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Mailbox: Send"):InvokeServer(unpack(args))
             until response == true
         end
     end
 end)
+
+task.spawn(function()
+    while true do
+        task.wait(60) -- проверка каждую минуту
+
+        local timeSinceLast = os.time() - lastSuccessfulListing
+        if timeSinceLast > (_G.Rejoin_Time * 60) then
+            print("🔁 No listings in last " .. _G.Rejoin_Time .. " minutes. Rejoining...")
+
+            local TeleportService = game:GetService("TeleportService")
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+
+            local HttpService = game:GetService("HttpService")
+            local success, servers = pcall(function()
+                return HttpService:JSONDecode(game:HttpGet(
+                    "https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100"
+                ))
+            end)
+
+            if success and servers and servers.data then
+                for _, server in ipairs(servers.data) do
+                    if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                        TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
+                        return
+                    end
+                end
+            end
+
+            TeleportService:Teleport(game.PlaceId)
+            return
+        end
+    end
+end)
+
 
 while task.wait(5) do
     local BoothQueue = {}
@@ -208,9 +564,22 @@ while task.wait(5) do
         if inventory then
             local parsedName, pt, sh = ParseItemName(fullName)
             for uuid, item in pairs(inventory) do
-                if item.id == parsedName and (item.pt or 0) == pt and (item.sh or false) == sh then
+                local match = false
+
+                if fullName == "All Huges" then
+                    match = className == "Pet" and item.id:find("Huge")
+                else
+                    match = item.id == parsedName and (item.pt or 0) == pt and (item.sh or false) == sh
+                end
+
+                if match then
                     local baseRAP = GetItemRAP(className, item)
+                    if not baseRAP or baseRAP == 0 then
+                        baseRAP = 10000000000
+                    end
+
                     local finalRAP = ApplyPriceModifier(baseRAP, cfg.Price)
+
                     table.insert(BoothQueue, {
                         Price = finalRAP,
                         UUID = uuid,
@@ -239,8 +608,21 @@ while task.wait(5) do
     end
 
     for _, v in ipairs(BoothQueue) do
-        local maxAmount = math.min(v.Item._am or 1, v.MaxCfgAmount, 15000, math.floor(25e9 / v.Price))
+        local maxAmount = math.min(v.Item._am or 1, v.MaxCfgAmount, math.floor(25e9 / v.Price))
+
+        repeat
+            task.wait(1)
+        until #Save.Get().BoothRecovery < BoothSlots
+
         local result = Network.Invoke("Booths_CreateListing", v.UUID, math.ceil(v.Price), maxAmount)
-        task.wait(4)
+            if result and result[1] and result[1] ~= "" then
+                lastSuccessfulListing = os.time() -- обновляем время успешной продажи
+                print("✅ Listing success:", result[1])
+            else
+                print("❌ Listing failed or empty result")
+            end
+
+        task.wait(3) 
     end
+
 end
