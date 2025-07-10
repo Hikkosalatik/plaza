@@ -635,21 +635,15 @@ while task.wait(5) do
 
         repeat
             task.wait(1)
-        until #Save.Get().BoothRecovery < BoothSlots
+        until #Save.Get().BoothRecovery <= BoothSlots
 
         local result = Network.Invoke("Booths_CreateListing", v.UUID, math.ceil(v.Price), maxAmount)
         if result == true then
             print("Listing success")
             lastSuccessfulListing = os.time()
-        elseif type(result) == "table" and type(result[1]) == "string" then
-            print("✅ Listing success:", result[1])
-            lastSuccessfulListing = os.time()
         else
-            print("❌ Listing failed or empty result. Got:", typeof(result), result)
+            print("Listing failed")
         end
-
-
         task.wait(3) 
     end
-
 end
